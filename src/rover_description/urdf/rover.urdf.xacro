@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<robot name="rover" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Dimensions (meters / kg) -->
+  <xacro:property name="body_l" value="0.30"/>
+  <xacro:property name="body_w" value="0.18"/>
+  <xacro:property name="body_h" value="0.08"/>
+  <xacro:property name="body_mass" value="2.0"/>
+  <xacro:property name="wheel_r" value="0.04"/>
+  <xacro:property name="wheel_w" value="0.03"/>
+  <xacro:property name="wheel_mass" value="0.2"/>
+  <xacro:property name="wheel_y" value="0.105"/>
+
+  <material name="blue"><color rgba="0.1 0.3 0.8 1"/></material>
+  <material name="black"><color rgba="0.1 0.1 0.1 1"/></material>
+  <material name="red"><color rgba="0.8 0.1 0.1 1"/></material>
+  <material name="grey"><color rgba="0.5 0.5 0.5 1"/></material>
+
+  <!-- Body -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 ${wheel_r + body_h/2}"/>
+      <geometry><box size="${body_l} ${body_w} ${body_h}"/></geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${wheel_r + body_h/2}"/>
+      <geometry><box size="${body_l} ${body_w} ${body_h}"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 ${wheel_r + body_h/2}"/>
+      <mass value="${body_mass}"/>
+      <inertia ixx="${body_mass/12*(body_w*body_w + body_h*body_h)}" ixy="0" ixz="0"
+               iyy="${body_mass/12*(body_l*body_l + body_h*body_h)}" iyz="0"
+               izz="${body_mass/12*(body_l*body_l + body_w*body_w)}"/>
+    </inertial>
+  </link>
+
+  <!-- Wheel macro: write once, call twice -->
+  <xacro:macro name="wheel" params="name y_pos">
+    <link name="${name}">
+      <visual>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_r}" length="${wheel_w}"/></geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin rpy="${pi/2} 0 0"/>
+        <geometry><cylinder radius="${wheel_r}" length="${wheel_w}"/></geometry>
+      </collision>
+      <inertial>
+        <mass value="${wheel_mass}"/>
+        <inertia ixx="${wheel_mass/12*(3*wheel_r*wheel_r + wheel_w*wheel_w)}" ixy="0" ixz="0"
+                 iyy="${wheel_mass*wheel_r*wheel_r/2}" iyz="0"
+                 izz="${wheel_mass/12*(3*wheel_r*wheel_r + wheel_w*wheel_w)}"/>
+      </inertial>
+    </link>
+    <joint name="${name}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="0 ${y_pos} ${wheel_r}"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:wheel name="wheel_left"  y_pos="${wheel_y}"/>
+  <xacro:wheel name="wheel_right" y_pos="${-wheel_y}"/>
+
+  <!-- Caster (rear ball) -->
+  <link name="caster">
+    <visual>
+      <geometry><sphere radius="${wheel_r}"/></geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <geometry><sphere radius="${wheel_r}"/></geometry>
+    </collision>
+  </link>
+  <joint name="caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster"/>
+    <origin xyz="${-body_l/2 + 0.04} 0 ${wheel_r}"/>
+  </joint>
+
+  <!-- Lidar (top of body) -->
+  <link name="lidar_link">
+    <visual>
+      <geometry><cylinder radius="0.035" length="0.04"/></geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_link"/>
+    <origin xyz="0.05 0 ${wheel_r + body_h + 0.02}"/>
+  </joint>
+
+  <!-- Camera (front of body) -->
+  <link name="camera_link">
+    <visual>
+      <geometry><box size="0.02 0.06 0.03"/></geometry>
+      <material name="black"/>
+    </visual>
+  </link>
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="${body_l/2} 0 ${wheel_r + body_h/2}"/>
+  </joint>
+
+</robot>
