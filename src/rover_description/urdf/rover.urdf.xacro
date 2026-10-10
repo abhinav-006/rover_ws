@@ -10,6 +10,7 @@
   <xacro:property name="wheel_w" value="0.03"/>
   <xacro:property name="wheel_mass" value="0.2"/>
   <xacro:property name="wheel_y" value="0.105"/>
+  <xacro:property name="wheel_x" value="0.05"/>
 
   <material name="blue"><color rgba="0.1 0.3 0.8 1"/></material>
   <material name="black"><color rgba="0.1 0.1 0.1 1"/></material>
@@ -58,7 +59,7 @@
     <joint name="${name}_joint" type="continuous">
       <parent link="base_link"/>
       <child link="${name}"/>
-      <origin xyz="0 ${y_pos} ${wheel_r}"/>
+      <origin xyz="${wheel_x} ${y_pos} ${wheel_r}"/>
       <axis xyz="0 1 0"/>
     </joint>
   </xacro:macro>
@@ -107,5 +108,55 @@
     <child link="camera_link"/>
     <origin xyz="${body_l/2} 0 ${wheel_r + body_h/2}"/>
   </joint>
+
+  <!-- Gazebo settings (colors and friction) -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="wheel_left">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+  </gazebo>
+
+  <gazebo reference="wheel_right">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+  </gazebo>
+
+  <gazebo reference="caster">
+    <material>Gazebo/Grey</material>
+    <mu1>0.0</mu1>
+    <mu2>0.0</mu2>
+  </gazebo>
+
+  <gazebo reference="lidar_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <gazebo reference="camera_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- Differential drive plugin: makes the wheels respond to /cmd_vel -->
+  <gazebo>
+    <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
+      <update_rate>50</update_rate>
+      <left_joint>wheel_left_joint</left_joint>
+      <right_joint>wheel_right_joint</right_joint>
+      <wheel_separation>${2*wheel_y}</wheel_separation>
+      <wheel_diameter>${2*wheel_r}</wheel_diameter>
+      <max_wheel_torque>20</max_wheel_torque>
+      <max_wheel_acceleration>1.0</max_wheel_acceleration>
+      <command_topic>cmd_vel</command_topic>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+    </plugin>
+  </gazebo>
 
 </robot>
