@@ -108,16 +108,6 @@ Set Fixed Frame to `odom`, add `RobotModel` and `LaserScan` (topic `/scan`, reli
 
 Every scan, the node finds the nearest object in a front, left and right zone. If the front zone is closer than `stop_distance`, the rover turns toward the side with more room. Otherwise it drives forward. If all three zones are blocked it stops, and it resumes when the way clears.
 
-## Roadmap
-
-- [x] URDF/Xacro model and RViz visualization
-- [x] Gazebo simulation with differential drive
-- [x] Simulated lidar publishing `/scan`
-- [x] Obstacle avoidance with stop conditions
-- [ ] Camera sensor plugin
-- [ ] SLAM with `slam_toolbox`
-- [ ] Autonomous navigation with Nav2
-
 ## Author
 
 Abhinav Bhandari
