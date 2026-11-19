@@ -34,4 +34,3 @@ slam_toolbox:
     map_update_interval: 2.0
     transform_publish_period: 0.02
     throttle_scans: 1
-    
